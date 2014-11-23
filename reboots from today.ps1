@@ -1,0 +1,1 @@
+﻿get-eventlog system -after (get-date -hour 00 -Minute 00) | where {$_.Message -like "*reboot*" -or $_.message -like "*restart*"}
