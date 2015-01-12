@@ -1,0 +1,1 @@
+﻿gwmi -class win32_bios | format-table @{l='ComputerName';e={$_.__Server}},@{l='BIOSSerial';e={$_.SerialNuber}},@{l='OSBuild';e={gwmi -class win32_operatingsystem -comp $_.__Server | Select-Object -ExpandProperty BuildNumber}} -AutoSize

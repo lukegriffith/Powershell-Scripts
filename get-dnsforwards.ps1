@@ -152,7 +152,7 @@ Function Get-DNSForwards {
             return $outServer | select NotProcessed
 }
             
-$input = "C:\Users\lgriffith\Google Drive\Projects\Powershell Scripts\Working on\DNS Enumeration Tool\serverwork.csv"
-$export = "C:\Users\lgriffith\Google Drive\Projects\Powershell Scripts\Working on\DNS Enumeration Tool\serveroutput.csv"
+$input = "path"
+$export = "path"
 
 Get-DNSForwards -inputCSV  $input  -ExportCSV $export 

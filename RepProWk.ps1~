@@ -1,0 +1,1 @@
+copy $profile Scr:\Profiles\wks1Profile.ps1
