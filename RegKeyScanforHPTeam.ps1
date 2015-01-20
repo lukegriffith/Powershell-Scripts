@@ -1,10 +1,10 @@
 ﻿foreach ($server in $servers) {
  
- $server = $server
+$server
  
- $credential = #########
+$credential = #########
 
- $wmi = get-wmiobject -list "StdRegProv" -namespace root\default -computername $server -credential $credential
+$wmi = get-wmiobject -list "StdRegProv" -namespace root\default -computername $server -credential $credential
 
  
 
@@ -135,12 +135,7 @@ $array2 = $arrayFailed | select Server | Group-Object
 
 
 diff -ReferenceObject $array2 -DifferenceObject $array1 | Export-Csv -Path .\failed.csv
-
-
-
-
-
-return $array
+$array | export-csv -Path .\RegValues.csv
 
 <# Paths
 
