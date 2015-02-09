@@ -1,7 +1,14 @@
-﻿foreach ($server in $servers) {
+﻿### Create log files 
+
+New-Item -ItemType file -Path .\Log\ConnectionFailure.txt -Value $null -Force
+New-Item -ItemType file -Path .\Log\AuthenticationFailure.txt -Value $null -Force 
+New-Item -ItemType file -Path .\Log\GenericFailure.txt -Value $null -Force
+New-Item -ItemType file -Path .\Log\WMINull.txt -Value $null -Force
+
+foreach ($server in $servers) {
  
 
- $server
+ write-host "$server"
 
 $credential = Get-ManageCredential -PasswordProxyWS $ws -CI $server
 
@@ -9,9 +16,37 @@ $credential = Get-ManageCredential -PasswordProxyWS $ws -CI $server
 
 try {
 
-$wmi = get-wmiobject -class "StdRegProv" -namespace root\default -computername $server -credential $credential
+$wmi = get-wmiobject -class "StdRegProv" -namespace root\default -computername $server -credential $credential -list
 
- 
+}
+
+catch [System.Runtime.InteropServices.COMException] {
+
+$server | Add-Content .\ConnectionFailure.txt
+Write-Debug "Connection Failure"
+
+}
+
+catch [System.UnauthorizedAccessException] {
+
+$server | Add-Content .\AuthenticationFailure.txt
+Write-Debug "Authentication Failure"
+}
+
+
+catch {
+
+$server | add-content .\GenericFailure.txt
+Write-Debug "Generic Failure"
+}
+
+
+finally {
+
+try {
+
+
+
 
 $hklm = 2147483650
 $key = "SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002BE10318}"
@@ -26,10 +61,7 @@ $arrayFailed = @()
 
 
 
-New-Item -ItemType file -Path .\ConnectionFailure.txt -Value $null
-New-Item -ItemType file -Path .\AuthenticationFailure.txt -Value $null
-New-Item -ItemType file -Path .\GenericFailure.txt -Value $null
-New-Item -ItemType file -Path .\WMINull.txt -Value $null
+
 
 foreach ($value in $valueList) {
 
@@ -102,11 +134,7 @@ foreach ($value in $valueList) {
         write-host "$($wmiObj.ReturnValue) for $value in $skey"
 
 
-            if ($wmiObj.ReturnValue -ne 0) {
 
-
-
-            }
 
             if (($wmiObj.ReturnValue -eq 0) -and ($value -eq 'TxPathValidationEnabled' -and $wmiObj.uValue -eq 1) -or ($value -eq 'RxPathValidationTime' -and $wmiObj.uValue -eq 1) -or ($value -eq 'TeamType' -and $wmiObj.uValue -eq 11)) {
 
@@ -152,33 +180,22 @@ foreach ($value in $valueList) {
 }
 
 
-}
 
-catch [System.Runtime.InteropServices.COMException] {
 
-$server | Add-Content .\ConnectionFailure.txt
-Write-Debug "Connection Failure"
 
 }
 
-catch [System.UnauthorizedAccessException] {
 
-$server | Add-Content .\AuthenticationFailure.txt
-Write-Debug "Authentication Failure"
-}
 
 catch [System.Management.Automation.RuntimeException] {
 Write-Debug "WMI call returned null"
 $server | Add-Content .\WMINull.txt
-
-}
-catch {
-
-$server | add-content .\GenericFailure.txt
-Write-Debug "Generic Failure"
 }
 
 }
+
+}
+
 
 $array2 = $arrayFailed | select Server | Group-Object
 
