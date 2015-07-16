@@ -2,9 +2,8 @@
 
 
 $gpsOut | ForEach-Object {
-$SQLQuery = "use transactions
-go
+$SQLQuery = @"
 insert into processes
 Values ($($_.id),$($_.CPU),$($_.WorkingSet),'$($_.ProcessName)')
-"
+"@
 Invoke-Sqlcmd  $SQLQuery -Database transactions -ServerInstance SQL\SQLEXPRESS}
