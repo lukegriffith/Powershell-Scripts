@@ -59,7 +59,7 @@ configuration lgWebServer {
 
     param($node)
 
-
+    Import-DscResource -Module xWebAdministration
     foreach ($feature in $WEBSERVER) {
         
         node $node 
@@ -73,7 +73,51 @@ configuration lgWebServer {
 
         }
     }
+
+
+
+
+    <#
+
+    Tempaltes - need to amend to my site
+         # Stop the default website
+        xWebsite DefaultSite 
+        {
+            Ensure          = "Present"
+            Name            = "Default Web Site"
+            State           = "Stopped"
+            PhysicalPath    = "C:\inetpub\wwwroot"
+            DependsOn       = "[WindowsFeature]IIS"
+        }
+
+                # Copy the website content
+        File WebContent
+        {
+            Ensure          = "Present"
+            SourcePath      = $SourcePath
+            DestinationPath = $DestinationPath
+            Recurse         = $true
+            Type            = "Directory"
+            DependsOn       = "[WindowsFeature]AspNet45"
+        }    
+
+           
+
+        # Create the new Website
+        xWebsite NewWebsite
+        {
+            Ensure          = "Present"
+            Name            = $WebSiteName
+            State           = "Started"
+            PhysicalPath    = $DestinationPath
+            DependsOn       = "[File]WebContent"
+            }
+
+
+
+            #>
 }
 
-lgWebServer -node 
-Start-DscConfiguration -CimSession -Path lgwebserver
+
+
+
