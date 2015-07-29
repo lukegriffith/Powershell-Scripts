@@ -59,26 +59,53 @@ configuration lgWebServer {
 
     param($node)
 
+    
     Import-DscResource -Module xWebAdministration
-    foreach ($feature in $WEBSERVER) {
-        
-        node $node 
-        {
-            WindowsFeature "IIS$feature" {
 
-            Name = $feature
-            Ensure = "Present"
+            node $node {
 
-           }
+                # IIS Features
+                foreach ($feature in $WEBSERVER) {
 
-        }
-    }
+                    WindowsFeature "IIS$feature" {
 
+                    Name = $feature
+                    Ensure = "Present"
 
+                   }
+                }
+
+                # WebSite Directory
+                File IISDirectory 
+                {
+                    Ensure = "Present"
+                    Type = "Directory"
+                    Recurse = $true
+                    SourcePath = "\\web.lgriffithWEB.a7.internal.cloudapp.net\c$\www"
+                    DestinationPath = "C:\inetpub"
+                }
+                xWebsite DefaultSite 
+                {
+                    Ensure          = "Present"
+                    Name            = "Default Web Site"
+                    State           = "Stopped"
+                    PhysicalPath    = "C:\inetpub\wwwroot"
+                    DependsOn       = "[WindowsFeature]IISWeb-WebServer"
+                }
+                xWebsite NewWebsite
+                {
+                    Ensure          = "Present"
+                    Name            = "LukeGriffithBlog"
+                    State           = "Started"
+                    PhysicalPath    = "C:\inetpub\LukeGriffith"
+                    DependsOn       = "[File]IISDirectory"
+                 }
+
+            }
 
 
     <#
-
+    Import-DscResource -Module xWebAdministration
     Tempaltes - need to amend to my site
          # Stop the default website
         xWebsite DefaultSite 
