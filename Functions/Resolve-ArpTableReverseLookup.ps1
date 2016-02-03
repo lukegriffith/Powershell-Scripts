@@ -2,13 +2,13 @@
 function Resolve-ArpTableReverseLookup {
 
     $out = arp -a
-    $out = $out | select -Skip 3
+    $out = $out | Select-Object -Skip 3
 
-    $out | ForEach {
+    $out | ForEach-Object -Process {
         if ( $_ -match "\s+(?<IP>\S+)" ) { 
             $res = [system.net.dns]::Resolve($matches.ip)
 
-            $res.AddressList | ForEach { 
+            $res.AddressList | ForEach-Object -Process { 
 
                 [pscustomobject]@{
                     HostName = $res.HostName
